@@ -4,6 +4,11 @@ A Lightweight Event System.
 [![Build Status](https://travis-ci.org/kerner1000/events1000.svg?branch=master)](https://travis-ci.org/kerner1000/events1000)
 [![codecov](https://codecov.io/gh/kerner1000/events/branch/master/graph/badge.svg)](https://codecov.io/gh/kerner1000/events1000)
 
+# Features
+## Events can be visited or consumed
+## Asynchronous, Synchronous and UI Events
+## Event Topics may have (more generic) parent Topis
+
 
 # Usage
 ## Creating Objects
