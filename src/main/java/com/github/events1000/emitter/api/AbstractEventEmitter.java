@@ -22,7 +22,11 @@ public abstract class AbstractEventEmitter<L extends EventListener> implements E
 	Queue<L> queue = listeners.get(listener.getTopic());
 	if (queue == null) {
 	    queue = new LinkedList<>();
-	    listeners.put(listener.getTopic(), queue);
+	    EventTopic topic = listener.getTopic();
+	    while (topic != null) {
+		listeners.put(topic, queue);
+		topic = topic.getParent();
+	    }
 	}
 	queue.add(listener);
     }

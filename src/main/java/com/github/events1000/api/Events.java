@@ -41,6 +41,12 @@ public class Events {
 
     }
 
+    public synchronized void emit(Event event) {
+	if (event instanceof SynchronousEvent) {
+	    emit((SynchronousEvent) event);
+	}
+    }
+
     private void trimHistory() {
 	if (history.size() >= historySize) {
 	    history.subList(historySize - 1, history.size()).clear();
