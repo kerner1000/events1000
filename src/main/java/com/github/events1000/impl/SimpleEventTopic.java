@@ -6,11 +6,16 @@ public class SimpleEventTopic implements EventTopic {
 
     private final String name;
 
-    private EventTopic parent;
+    private final EventTopic parent;
 
-    public SimpleEventTopic(final String name) {
+    public SimpleEventTopic(final String name, EventTopic parent) {
 	super();
 	this.name = name;
+	this.parent = parent;
+    }
+
+    public SimpleEventTopic(final String name) {
+	this(name, null);
     }
 
     @Override
@@ -21,10 +26,6 @@ public class SimpleEventTopic implements EventTopic {
     @Override
     public EventTopic getParent() {
 	return parent;
-    }
-
-    public void setParent(final EventTopic parent) {
-	this.parent = parent;
     }
 
 }

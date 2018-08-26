@@ -31,7 +31,7 @@ public class EventsTest {
 
     @Test
     public void test() {
-	CountingSynchonousEventListener listener = new CountingSynchonousEventListener();
+	CountingSynchonousEventListener listener = new CountingSynchonousEventListener(EventTopic.get("test"));
 	Events.getInstance().registerListener(listener);
 	Events.getInstance().emit(new SimpleSynchronousEvent(EventTopic.get("test")));
 	assertThat(listener.getCount(), is(1L));

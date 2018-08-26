@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.events1000.emitter.api.SimpleSynchronousEventEmitter;
 import com.github.events1000.emitter.api.SynchronousEventEmitter;
+import com.github.events1000.listener.api.EventListener;
 import com.github.events1000.listener.api.SynchronousEventListener;
 
 public class Events {
@@ -33,7 +34,7 @@ public class Events {
 
     }
 
-    public void emit(SynchronousEvent event) {
+    public synchronized void emit(SynchronousEvent event) {
 	synchronousEventEmitter.emit(event);
 	trimHistory();
 	history.add(event);
@@ -46,11 +47,18 @@ public class Events {
 	}
     }
 
-    public void registerListener(SynchronousEventListener listener) {
+    public synchronized void registerListener(EventListener listener) {
+
+	if (listener instanceof SynchronousEventListener) {
+	    registerListener((SynchronousEventListener) listener);
+	}
+    }
+
+    public synchronized void registerListener(SynchronousEventListener listener) {
 	synchronousEventEmitter.registerEventListener(listener);
     }
 
-    public List<Event> getHistory() {
+    public synchronized List<Event> getHistory() {
 	return history;
     }
 
