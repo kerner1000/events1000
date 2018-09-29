@@ -5,14 +5,19 @@ import com.github.events1000.api.EventTopic;
 
 public interface EventListener {
 
-    EventTopic getTopic();
+	/**
+	 * Gets the {@link EventTopic} for this listener.
+	 * 
+	 * @return the {@link EventTopic} for this listener
+	 */
+	EventTopic getTopic();
 
-    /**
-     * 
-     * @param e
-     *            the event to visit
-     * @return {code true} if the event was consumed, {@code false} otherwise
-     */
-    boolean visit(Event e);
-
+	/**
+	 * Visits an event. Returns {@code true}, if the event was consumed, {@code false} otherwise.
+	 *
+	 * @param e
+	 *            the event to visit
+	 * @return {code true} if the event was consumed, {@code false} otherwise
+	 */
+	boolean visit(Event e);
 }
