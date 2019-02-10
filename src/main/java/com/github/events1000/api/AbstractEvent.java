@@ -1,29 +1,48 @@
 package com.github.events1000.api;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AbstractEvent implements Event {
 
-    private final UUID uuid;
+	private final UUID uuid;
+	private final EventTopic topic;
+	private final AtomicReference<Object> consumer;
 
-    private final EventTopic topic;
+	@Override
+	public Object getConsumer() {
 
-    public UUID getUUID() {
-	return uuid;
-    }
+		return consumer.get();
+	}
 
-    public EventTopic getTopic() {
-	return topic;
-    }
+	@Override
+	public void consume(final Object consumer) {
 
-    AbstractEvent(UUID uuid, EventTopic topic) {
-	super();
-	this.uuid = uuid;
-	this.topic = topic;
-    }
+		this.consumer.set(consumer);
+	}
 
-    public AbstractEvent(EventTopic topic) {
-	this(UUID.randomUUID(), topic);
-    }
+	@Override
+	public UUID getUUID() {
 
+		return uuid;
+	}
+
+	@Override
+	public EventTopic getTopic() {
+
+		return topic;
+	}
+
+	AbstractEvent(final UUID uuid, final EventTopic topic) {
+
+		super();
+		this.uuid = uuid;
+		this.topic = topic;
+		consumer = new AtomicReference<>(null);
+	}
+
+	public AbstractEvent(final EventTopic topic) {
+
+		this(UUID.randomUUID(), topic);
+	}
 }

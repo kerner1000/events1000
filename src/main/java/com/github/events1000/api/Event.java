@@ -4,8 +4,11 @@ import java.util.UUID;
 
 public interface Event {
 
-    UUID getUUID();
+	UUID getUUID();
 
-    EventTopic getTopic();
+	EventTopic getTopic();
 
+	void consume(Object consumer);
+
+	Object getConsumer();
 }

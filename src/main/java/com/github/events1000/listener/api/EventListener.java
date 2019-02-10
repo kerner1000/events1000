@@ -7,17 +7,10 @@ public interface EventListener {
 
 	/**
 	 * Gets the {@link EventTopic} for this listener.
-	 * 
+	 *
 	 * @return the {@link EventTopic} for this listener
 	 */
 	EventTopic getTopic();
 
-	/**
-	 * Visits an event. Returns {@code true}, if the event was consumed, {@code false} otherwise.
-	 *
-	 * @param e
-	 *            the event to visit
-	 * @return {code true} if the event was consumed, {@code false} otherwise
-	 */
-	boolean visit(Event e);
+	void visit(Event e);
 }

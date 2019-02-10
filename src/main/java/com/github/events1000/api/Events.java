@@ -6,8 +6,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.events1000.emitter.api.AsynchronousEventEmitter;
+import com.github.events1000.emitter.api.SingleThreadAsynchronousEventEmitter;
 import com.github.events1000.emitter.api.SimpleSynchronousEventEmitter;
 import com.github.events1000.emitter.api.SynchronousEventEmitter;
+import com.github.events1000.listener.api.AsynchronousEventListener;
 import com.github.events1000.listener.api.EventListener;
 import com.github.events1000.listener.api.SynchronousEventListener;
 
@@ -27,12 +30,14 @@ public class Events {
 	}
 
 	private final SynchronousEventEmitter synchronousEventEmitter;
+	private final AsynchronousEventEmitter asynchronousEventEmitter;
 	private final ArrayList<Event> history;
 	private final int historySize;
 
 	private Events() {
 
 		synchronousEventEmitter = new SimpleSynchronousEventEmitter();
+		asynchronousEventEmitter = new SingleThreadAsynchronousEventEmitter();
 		historySize = DEFAULT_HISTORY_SIZE;
 		history = new ArrayList<>(historySize);
 	}
@@ -44,24 +49,41 @@ public class Events {
 		history.add(event);
 	}
 
+	public synchronized void emit(final AsynchronousEvent event) {
+
+		asynchronousEventEmitter.emit(event);
+		trimHistory();
+		history.add(event);
+		// if(logger.isDebugEnabled()) {
+		// logger.debug(event + " fired");
+		// }
+	}
+
 	public synchronized void emit(final Event event) {
 
-		if(event instanceof SynchronousEvent)
+		if(event instanceof SynchronousEvent) {
 			emit((SynchronousEvent)event);
-		else if(logger.isDebugEnabled())
+		} else if(event instanceof AsynchronousEvent) {
+			emit((AsynchronousEvent)event);
+		} else if(logger.isDebugEnabled()) {
 			logger.debug("Unsupported event type " + event.getClass());
+		}
 	}
 
 	private void trimHistory() {
 
-		if(history.size() >= historySize)
+		if(history.size() >= historySize) {
 			history.subList(historySize - 1, history.size()).clear();
+		}
 	}
 
 	public synchronized void registerListener(final EventListener listener) {
 
-		if(listener instanceof SynchronousEventListener)
+		if(listener instanceof SynchronousEventListener) {
 			registerListener((SynchronousEventListener)listener);
+		} else if(listener instanceof AsynchronousEventListener) {
+			registerListener((AsynchronousEventListener)listener);
+		}
 	}
 
 	public synchronized void registerListener(final SynchronousEventListener listener) {
@@ -69,8 +91,19 @@ public class Events {
 		synchronousEventEmitter.registerEventListener(listener);
 	}
 
+	public synchronized void registerListener(final AsynchronousEventListener listener) {
+
+		asynchronousEventEmitter.registerEventListener(listener);
+	}
+
 	public synchronized List<Event> getHistory() {
 
 		return history;
+	}
+
+	public void stop() {
+
+		synchronousEventEmitter.stop();
+		asynchronousEventEmitter.stop();
 	}
 }

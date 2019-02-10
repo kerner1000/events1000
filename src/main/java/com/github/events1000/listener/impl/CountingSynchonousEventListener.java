@@ -7,20 +7,21 @@ import com.github.events1000.listener.api.SynchronousEventListener;
 
 public class CountingSynchonousEventListener extends AbstractEventListener implements SynchronousEventListener {
 
-    private long cnt = 0;
+	private long cnt = 0;
 
-    public CountingSynchonousEventListener(EventTopic topic) {
-	super(topic);
-    }
+	public CountingSynchonousEventListener(final EventTopic topic) {
 
-    public long getCount() {
-	return cnt;
-    }
+		super(topic);
+	}
 
-    @Override
-    protected boolean handle(Event e) {
-	cnt++;
-	return false;
-    }
+	public long getCount() {
 
+		return cnt;
+	}
+
+	@Override
+	protected void handle(final Event e) {
+
+		cnt++;
+	}
 }

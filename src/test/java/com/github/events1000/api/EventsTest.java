@@ -16,54 +16,74 @@ import com.github.events1000.listener.api.SynchronousEventListener;
 
 public class EventsTest {
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-    }
+	}
 
-    @Before
-    public void setUp() throws Exception {
-    }
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
 
-    @After
-    public void tearDown() throws Exception {
-    }
+	}
 
-    @Test
-    public void test() {
-	EventListener listener = new SynchronousEventListener() {
+	@Before
+	public void setUp() throws Exception {
 
-	    @Override
-	    public EventTopic getTopic() {
-		return EventTopic.get("test");
-	    }
+	}
 
-	    @Override
-	    public boolean visit(Event e) {
-		System.err.println("Hey there!");
-		return false;
-	    }
-	};
-	Event event = new SynchronousEvent() {
+	@After
+	public void tearDown() throws Exception {
 
-	    @Override
-	    public UUID getUUID() {
-		return UUID.randomUUID();
-	    }
+	}
 
-	    @Override
-	    public EventTopic getTopic() {
-		return EventTopic.get("test");
-	    }
-	};
-	Events.getInstance().registerListener(listener);
-	Events.getInstance().emit(event);
-	assertThat(Events.getInstance().getHistory().size(), is(1));
-	Event e = Events.getInstance().getHistory().get(0);
-	assertThat(e.getTopic().getName(), is("test"));
-    }
+	@Test
+	public void test() {
 
+		final EventListener listener = new SynchronousEventListener() {
+
+			@Override
+			public EventTopic getTopic() {
+
+				return EventTopic.get("test");
+			}
+
+			@Override
+			public void visit(final Event e) {
+
+				System.err.println("Hey there!");
+			}
+		};
+		final Event event = new SynchronousEvent() {
+
+			@Override
+			public UUID getUUID() {
+
+				return UUID.randomUUID();
+			}
+
+			@Override
+			public EventTopic getTopic() {
+
+				return EventTopic.get("test");
+			}
+
+			@Override
+			public void consume(final Object consumer) {
+
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public Object getConsumer() {
+
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
+		Events.getInstance().registerListener(listener);
+		Events.getInstance().emit(event);
+		assertThat(Events.getInstance().getHistory().size(), is(1));
+		final Event e = Events.getInstance().getHistory().get(0);
+		assertThat(e.getTopic().getName(), is("test"));
+	}
 }
