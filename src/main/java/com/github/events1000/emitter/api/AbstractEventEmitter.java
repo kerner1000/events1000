@@ -10,30 +10,36 @@ import com.github.events1000.listener.api.EventListener;
 
 public abstract class AbstractEventEmitter<L extends EventListener> implements EventEmitter<L> {
 
-	private final Map<EventTopic, Queue<L>> listeners;
+    private final Map<EventTopic, Queue<L>> listeners;
 
-	public AbstractEventEmitter() {
+    public AbstractEventEmitter() {
 
-		this.listeners = new LinkedHashMap<>();
+	this.listeners = new LinkedHashMap<>();
+    }
+
+    @Override
+    public synchronized void registerEventListener(EventTopic topic, final L listener) {
+
+	Queue<L> queue = listeners.get(topic);
+	if (queue == null) {
+	    queue = new LinkedList<>();
+	    while (topic != null) {
+		listeners.put(topic, queue);
+		topic = topic.getParent();
+	    }
 	}
+	queue.add(listener);
+    }
 
-	@Override
-	public synchronized void registerEventListener(final L listener) {
-
-		Queue<L> queue = listeners.get(listener.getTopic());
-		if(queue == null) {
-			queue = new LinkedList<>();
-			EventTopic topic = listener.getTopic();
-			while(topic != null) {
-				listeners.put(topic, queue);
-				topic = topic.getParent();
-			}
-		}
-		queue.add(listener);
+    @Override
+    public void unregisterEventListener(final L listener) {
+	for (final Queue<L> q : listeners.values()) {
+	    q.remove(listener);
 	}
+    }
 
-	protected Map<EventTopic, Queue<L>> getListeners() {
+    protected Map<EventTopic, Queue<L>> getListeners() {
 
-		return listeners;
-	}
+	return listeners;
+    }
 }

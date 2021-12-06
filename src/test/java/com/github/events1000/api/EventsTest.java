@@ -16,74 +16,68 @@ import com.github.events1000.listener.api.SynchronousEventListener;
 
 public class EventsTest {
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
 
-	}
+    }
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
 
-	}
+    }
 
-	@Before
-	public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
-	}
+    }
 
-	@After
-	public void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 
-	}
+    }
 
-	@Test
-	public void test() {
+    @Test
+    public void test() {
 
-		final EventListener listener = new SynchronousEventListener() {
+	final EventListener listener = new SynchronousEventListener() {
 
-			@Override
-			public EventTopic getTopic() {
+	    @Override
+	    public void visit(final Event e) {
 
-				return EventTopic.get("test");
-			}
+		System.err.println("Hey there!");
+	    }
+	};
+	final Event event = new SynchronousEvent() {
 
-			@Override
-			public void visit(final Event e) {
+	    @Override
+	    public UUID getUUID() {
 
-				System.err.println("Hey there!");
-			}
-		};
-		final Event event = new SynchronousEvent() {
+		return UUID.randomUUID();
+	    }
 
-			@Override
-			public UUID getUUID() {
+	    @Override
+	    public EventTopic getTopic() {
 
-				return UUID.randomUUID();
-			}
+		return EventTopic.get("test");
+	    }
 
-			@Override
-			public EventTopic getTopic() {
+	    @Override
+	    public void consume(final Object consumer) {
 
-				return EventTopic.get("test");
-			}
+		// TODO Auto-generated method stub
+	    }
 
-			@Override
-			public void consume(final Object consumer) {
+	    @Override
+	    public Object getConsumer() {
 
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public Object getConsumer() {
-
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		Events.getInstance().registerListener(listener);
-		Events.getInstance().emit(event);
-		assertThat(Events.getInstance().getHistory().size(), is(1));
-		final Event e = Events.getInstance().getHistory().get(0);
-		assertThat(e.getTopic().getName(), is("test"));
-	}
+		// TODO Auto-generated method stub
+		return null;
+	    }
+	};
+	Events.getInstance().registerListener(EventTopic.get("test"), listener);
+	Events.getInstance().emit(event);
+	assertThat(Events.getInstance().getHistory().size(), is(1));
+	final Event e = Events.getInstance().getHistory().get(0);
+	assertThat(e.getTopic().getName(), is("test"));
+    }
 }

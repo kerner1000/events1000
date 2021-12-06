@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.kerner1000</groupId>
 	<artifactId>events1000</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>Events1000</name>
 	<description>A Lightweight Event System.</description>
 	<parent>
@@ -58,7 +58,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.7.201606060606</version>
+				<version>0.8.7</version>
 				<executions>
 					<execution>
 						<goals>

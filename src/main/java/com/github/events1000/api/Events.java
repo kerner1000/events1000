@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.events1000.emitter.api.AsynchronousEventEmitter;
-import com.github.events1000.emitter.api.SingleThreadAsynchronousEventEmitter;
 import com.github.events1000.emitter.api.SimpleSynchronousEventEmitter;
+import com.github.events1000.emitter.api.SingleThreadAsynchronousEventEmitter;
 import com.github.events1000.emitter.api.SynchronousEventEmitter;
 import com.github.events1000.listener.api.AsynchronousEventListener;
 import com.github.events1000.listener.api.EventListener;
@@ -16,94 +16,112 @@ import com.github.events1000.listener.api.SynchronousEventListener;
 
 public class Events {
 
-	private static final Logger logger = LoggerFactory.getLogger(Events.class);
-	public static final int DEFAULT_HISTORY_SIZE = 1000;
+    private static final Logger logger = LoggerFactory.getLogger(Events.class);
+    public static final int DEFAULT_HISTORY_SIZE = 1000;
 
-	private static class InstanceHolder {
+    private static class InstanceHolder {
 
-		private static final Events instance = new Events();
+	private static final Events instance = new Events();
+    }
+
+    public static Events getInstance() {
+
+	return InstanceHolder.instance;
+    }
+
+    private final SynchronousEventEmitter synchronousEventEmitter;
+    private final AsynchronousEventEmitter asynchronousEventEmitter;
+    private final ArrayList<Event> history;
+    private final int historySize;
+
+    private Events() {
+
+	synchronousEventEmitter = new SimpleSynchronousEventEmitter();
+	asynchronousEventEmitter = new SingleThreadAsynchronousEventEmitter();
+	historySize = DEFAULT_HISTORY_SIZE;
+	history = new ArrayList<>(historySize);
+    }
+
+    public synchronized void emit(final SynchronousEvent event) {
+
+	synchronousEventEmitter.emit(event);
+	trimHistory();
+	history.add(event);
+    }
+
+    public synchronized void emit(final AsynchronousEvent event) {
+
+	asynchronousEventEmitter.emit(event);
+	trimHistory();
+	history.add(event);
+	// if(logger.isDebugEnabled()) {
+	// logger.debug(event + " fired");
+	// }
+    }
+
+    public synchronized void emit(final Event event) {
+
+	if (event instanceof SynchronousEvent) {
+	    emit((SynchronousEvent) event);
+	} else if (event instanceof AsynchronousEvent) {
+	    emit((AsynchronousEvent) event);
+	} else if (logger.isDebugEnabled()) {
+	    logger.debug("Unsupported event type " + event.getClass());
 	}
+    }
 
-	public static Events getInstance() {
+    private void trimHistory() {
 
-		return InstanceHolder.instance;
+	if (history.size() >= historySize) {
+	    history.subList(historySize - 1, history.size()).clear();
 	}
+    }
 
-	private final SynchronousEventEmitter synchronousEventEmitter;
-	private final AsynchronousEventEmitter asynchronousEventEmitter;
-	private final ArrayList<Event> history;
-	private final int historySize;
+    public synchronized void registerListener(final EventTopic topic, final EventListener listener) {
 
-	private Events() {
-
-		synchronousEventEmitter = new SimpleSynchronousEventEmitter();
-		asynchronousEventEmitter = new SingleThreadAsynchronousEventEmitter();
-		historySize = DEFAULT_HISTORY_SIZE;
-		history = new ArrayList<>(historySize);
+	if (listener instanceof SynchronousEventListener) {
+	    registerListener(topic, (SynchronousEventListener) listener);
+	} else if (listener instanceof AsynchronousEventListener) {
+	    registerListener(topic, (AsynchronousEventListener) listener);
 	}
+    }
 
-	public synchronized void emit(final SynchronousEvent event) {
+    synchronized void registerListener(final EventTopic topic, final SynchronousEventListener listener) {
 
-		synchronousEventEmitter.emit(event);
-		trimHistory();
-		history.add(event);
+	synchronousEventEmitter.registerEventListener(topic, listener);
+    }
+
+    synchronized void registerListener(final EventTopic topic, final AsynchronousEventListener listener) {
+
+	asynchronousEventEmitter.registerEventListener(topic, listener);
+    }
+
+    public synchronized void unregisterListener(final EventListener listener) {
+	if (listener instanceof SynchronousEventListener) {
+	    unregisterListener((SynchronousEventListener) listener);
+	} else if (listener instanceof AsynchronousEventListener) {
+	    unregisterListener((AsynchronousEventListener) listener);
 	}
+    }
 
-	public synchronized void emit(final AsynchronousEvent event) {
+    synchronized void unregisterListener(final SynchronousEventListener listener) {
 
-		asynchronousEventEmitter.emit(event);
-		trimHistory();
-		history.add(event);
-		// if(logger.isDebugEnabled()) {
-		// logger.debug(event + " fired");
-		// }
-	}
+	synchronousEventEmitter.unregisterEventListener(listener);
+    }
 
-	public synchronized void emit(final Event event) {
+    synchronized void unregisterListener(final AsynchronousEventListener listener) {
 
-		if(event instanceof SynchronousEvent) {
-			emit((SynchronousEvent)event);
-		} else if(event instanceof AsynchronousEvent) {
-			emit((AsynchronousEvent)event);
-		} else if(logger.isDebugEnabled()) {
-			logger.debug("Unsupported event type " + event.getClass());
-		}
-	}
+	asynchronousEventEmitter.unregisterEventListener(listener);
+    }
 
-	private void trimHistory() {
+    public synchronized List<Event> getHistory() {
 
-		if(history.size() >= historySize) {
-			history.subList(historySize - 1, history.size()).clear();
-		}
-	}
+	return history;
+    }
 
-	public synchronized void registerListener(final EventListener listener) {
+    public void stop() {
 
-		if(listener instanceof SynchronousEventListener) {
-			registerListener((SynchronousEventListener)listener);
-		} else if(listener instanceof AsynchronousEventListener) {
-			registerListener((AsynchronousEventListener)listener);
-		}
-	}
-
-	public synchronized void registerListener(final SynchronousEventListener listener) {
-
-		synchronousEventEmitter.registerEventListener(listener);
-	}
-
-	public synchronized void registerListener(final AsynchronousEventListener listener) {
-
-		asynchronousEventEmitter.registerEventListener(listener);
-	}
-
-	public synchronized List<Event> getHistory() {
-
-		return history;
-	}
-
-	public void stop() {
-
-		synchronousEventEmitter.stop();
-		asynchronousEventEmitter.stop();
-	}
+	synchronousEventEmitter.stop();
+	asynchronousEventEmitter.stop();
+    }
 }
