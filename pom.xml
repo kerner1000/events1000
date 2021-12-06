@@ -79,7 +79,6 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.0.1</version>
 				<configuration>
-					<source>${java.version}</source>
 					<detectJavaApiLink>false</detectJavaApiLink>
 					<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
 					<doclint>none</doclint>
